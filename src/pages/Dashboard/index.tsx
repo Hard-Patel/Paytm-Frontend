@@ -1,24 +1,45 @@
 import React from "react";
-import TextInput from "../../Components/TextInput";
 import "../../index.css";
+import TextInput from "../../Components/TextInput";
 import { User } from "../../interfaces/user";
 import { useNavigate } from "react-router-dom";
 import { useUsers } from "../../hooks/useUsers";
 import { useRecoilValue } from "recoil";
 import { userSession } from "../../recoil/atom/user";
+import { useDebounce } from "../../hooks/useDebounce";
+import { Constants } from "../../utils/Constants";
 
 function Dashboard() {
   const navigate = useNavigate();
   const user = useRecoilValue(userSession);
   const [search, setSearch] = React.useState("");
-  const { data, isLoading } = useUsers("");
+  const debouncedSearch = useDebounce(search, 500);
+
+  const { data, isFetching, isLoading, refetch } = useUsers(
+    debouncedSearch.trim()
+  );
+
+  React.useEffect(() => {
+    if (!localStorage.getItem(Constants.AuthToken)) {
+      navigate("/signin");
+    }
+  }, []);
 
   const [users, setUsers] = React.useState<User[]>();
   React.useEffect(() => {
-    if (!isLoading && data) {
+    if (!isLoading && !isFetching && data) {
       setUsers(data?.pages[0]?.data);
     }
-  }, [isLoading]);
+  }, [isLoading, isFetching]);
+
+  React.useEffect(() => {
+    refetch();
+  }, [debouncedSearch]);
+
+  const handleLogout = () => {
+    localStorage.removeItem(Constants.AuthToken);
+    navigate("/signin");
+  };
 
   return (
     <div
@@ -77,13 +98,25 @@ function Dashboard() {
           paddingRight: 18,
         }}
       >
-        <p
+        <div
           style={{
-            color: "black",
-            fontWeight: "900",
-            fontSize: 18,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            display: "flex",
           }}
-        >{`Your Balance: ${user?.Account.balance}`}</p>
+        >
+          <p
+            style={{
+              color: "black",
+              fontWeight: "900",
+              fontSize: 18,
+            }}
+          >{`Your Balance: ${user?.Account.balance}`}</p>
+          <button style={{ padding: 4 }} onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
         <div style={{ paddingTop: 15 }}>
           <p style={{ fontWeight: "bold", fontSize: 18 }}>Users</p>
           <TextInput
@@ -93,8 +126,7 @@ function Dashboard() {
             style={{ width: "95%" }}
           />
           <div style={{ paddingTop: 12, paddingBottom: 12 }}>
-            {users &&
-              users.length &&
+            {users && users.length ? (
               users.map((user, index) => {
                 return (
                   <div
@@ -156,7 +188,10 @@ function Dashboard() {
                     </button>
                   </div>
                 );
-              })}
+              })
+            ) : (
+              <div style={{ padding: 8 }}>No users found</div>
+            )}
           </div>
         </div>
       </div>

@@ -4,7 +4,11 @@ import { AmountTransfer } from "../interfaces/common";
 
 const useTransfer = () => {
   const queryKey = "transferAmount";
-  const transfer = useMutation(queryKey, transferAmount);
+  const transfer = useMutation(queryKey, transferAmount, {
+    onError: (e) => {
+      alert((e as Error).message ?? "Something went wrong");
+    },
+  });
 
   const tryAmountTransfer = (variables: AmountTransfer) =>
     transfer.mutate(variables);

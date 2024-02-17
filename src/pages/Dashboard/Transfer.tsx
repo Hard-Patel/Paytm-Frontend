@@ -1,13 +1,16 @@
 import "../../index.css";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextInput from "../../Components/TextInput";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { User, UserAccountInfo } from "../../interfaces/user";
 import { useTransfer } from "../../hooks/useTransfer";
 import { useRecoilState } from "recoil";
 import { userSession } from "../../recoil/atom/user";
+import { Constants } from "../../utils/Constants";
+import { ThreeCircles } from "react-loader-spinner";
 
 function Transfer() {
+  const navigate = useNavigate();
   const [user, setUser] = useRecoilState(userSession);
   const { state }: { state: User } = useLocation();
   const [amount, setAmount] = useState("");
@@ -16,7 +19,6 @@ function Transfer() {
   useEffect(() => {
     if (!isLoading && data?.data?.balance) {
       // console.log("isLoading, data: ", isLoading, data, error, isError);
-      console.log('data?.data: ', data?.data);
       const updatedUser: UserAccountInfo = {
         Account: { balance: data?.data?.balance },
         firstName: user?.firstName ?? "",
@@ -28,6 +30,7 @@ function Transfer() {
         password: user?.password ?? "",
       };
       setUser(updatedUser);
+      navigate("/dashboard");
     }
   }, [isLoading, setUser]);
 
@@ -37,6 +40,12 @@ function Transfer() {
       to: state.id,
     });
   };
+
+  React.useEffect(() => {
+    if (!localStorage.getItem(Constants.AuthToken)) {
+      navigate("/signin");
+    }
+  }, []);
 
   return (
     <div
@@ -115,8 +124,29 @@ function Transfer() {
             }}
             onClick={handleTransferInitiate}
           >
-            <div style={{ color: "white", fontWeight: "bold" }}>
-              Initiate Transfer
+            <div
+              style={{
+                color: "white",
+                fontWeight: "bold",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
+                display: "flex",
+              }}
+            >
+              {isLoading ? (
+                <ThreeCircles
+                  visible={true}
+                  height="24"
+                  width="24"
+                  color="#ffffff"
+                  ariaLabel="three-circles-loading"
+                  wrapperStyle={{}}
+                  wrapperClass=""
+                />
+              ) : (
+                <p>Initiate Transfer</p>
+              )}
             </div>
           </button>
         </div>

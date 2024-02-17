@@ -5,6 +5,8 @@ import { useUserSignIn } from "../../hooks/useUserSignIn";
 import { useRecoilState } from "recoil";
 import { userSession } from "../../recoil/atom/user";
 import { Constants } from "../../utils/Constants";
+import { ThreeCircles } from "react-loader-spinner";
+import { ToastContainer } from "react-toastify";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -16,11 +18,17 @@ function SignIn() {
   useEffect(() => {
     if (!isLoading && data) {
       setUser(data?.data);
-      const authToken = data?.data?.token
+      const authToken = data?.data?.token;
       localStorage.setItem(Constants.AuthToken, authToken);
-      navigate('/dashboard')
+      navigate("/dashboard");
     }
   }, [isLoading, isError]);
+
+  useEffect(() => {
+    if (localStorage.getItem(Constants.AuthToken)) {
+      navigate("/");
+    }
+  }, []);
 
   const handleSignIn = () => {
     trySignInUser({ username, password });
@@ -82,7 +90,30 @@ function SignIn() {
             }}
             onClick={handleSignIn}
           >
-            <div style={{ color: "white", fontWeight: "bold" }}>Sign In</div>
+            <div
+              style={{
+                color: "white",
+                fontWeight: "bold",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
+                display: "flex",
+              }}
+            >
+              {isLoading ? (
+                <ThreeCircles
+                  visible={true}
+                  height="24"
+                  width="24"
+                  color="#ffffff"
+                  ariaLabel="three-circles-loading"
+                  wrapperStyle={{}}
+                  wrapperClass=""
+                />
+              ) : (
+                <p>Sign In</p>
+              )}
+            </div>
           </button>
           <p style={{ textAlign: "center", paddingTop: 10 }}>
             Don't have an account?{" "}
@@ -91,6 +122,7 @@ function SignIn() {
             </Link>
           </p>
         </div>
+        <ToastContainer />
       </div>
     </div>
   );

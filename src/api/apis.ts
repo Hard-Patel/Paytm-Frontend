@@ -8,20 +8,11 @@ export const getUsers = async ({
   offset = 1,
   size = 5,
 }: getUsersInterface) => {
-  const filterOption = filter ? `filter=${filter}` : "";
-  const offsetOption = filter ? `filter=${offset}` : "";
-  const sizeOption = size ? `size=${size}` : "";
-
-  let options = filterOption || offsetOption || sizeOption ? `?` : "";
-  if (options) {
-    options += filterOption ? filterOption : "";
-    options += sizeOption ? sizeOption : "";
-    options += offsetOption ? offsetOption : "";
-  }
-
   const response = await get({
-    url: `${routes.getUsers}${options}`,
+    url: `${routes.getUsers}`,
+    params: { filter, offset, size },
   });
+  console.log('response: ', response);
   if (response?.status) {
     return response;
   } else {
@@ -30,16 +21,14 @@ export const getUsers = async ({
 };
 
 export const transferAmount = async ({ to, amount }: AmountTransfer) => {
-  console.log("to, amount, token: ", to, amount);
   const response = await post({
     url: `${routes.transferAmount}`,
     params: { to, fund: amount },
   });
-  console.log("response: ", response);
   if (response?.status) {
     return response;
   } else {
-    throw new Error(response?.message ?? "Something went wrong");
+    throw new Error(response?.msg ?? "Something went wrong");
   }
 };
 

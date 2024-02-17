@@ -1,22 +1,19 @@
 import React, { useEffect } from "react";
 import TextInput from "../../Components/TextInput";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUserSignUp } from "../../hooks/useUserSignup";
+import { ThreeCircles } from "react-loader-spinner";
+import { Constants } from "../../utils/Constants";
 
 function SignUp() {
+  const navigate = useNavigate();
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [username, setUsername] = React.useState("");
 
-  const { trySignUpUser } = useUserSignUp();
-
-  // useEffect(() => {
-  //   if (!isLoading) {
-  //     console.log("isLoading, data: ", isLoading, data, error, isError);
-  //   }
-  // }, [isLoading]);
+  const { trySignUpUser, isLoading } = useUserSignUp();
 
   const handleUserSignUp = () => {
     trySignUpUser({
@@ -27,6 +24,12 @@ function SignUp() {
       username,
     });
   };
+
+  useEffect(() => {
+    if (localStorage.getItem(Constants.AuthToken)) {
+      navigate("/");
+    }
+  }, []);
 
   return (
     <div
@@ -102,7 +105,30 @@ function SignUp() {
             }}
             onClick={handleUserSignUp}
           >
-            <div style={{ color: "white", fontWeight: "bold" }}>Sign Up</div>
+            <div
+              style={{
+                color: "white",
+                fontWeight: "bold",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: 1,
+                display: "flex",
+              }}
+            >
+              {isLoading ? (
+                <ThreeCircles
+                  visible={true}
+                  height="24"
+                  width="24"
+                  color="#ffffff"
+                  ariaLabel="three-circles-loading"
+                  wrapperStyle={{}}
+                  wrapperClass=""
+                />
+              ) : (
+                <p>Sign Up</p>
+              )}
+            </div>
           </button>
           <p style={{ textAlign: "center", paddingTop: 10 }}>
             Already have an account?{" "}
