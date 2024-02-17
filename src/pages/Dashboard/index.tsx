@@ -4,14 +4,14 @@ import TextInput from "../../Components/TextInput";
 import { User } from "../../interfaces/user";
 import { useNavigate } from "react-router-dom";
 import { useUsers } from "../../hooks/useUsers";
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { userSession } from "../../recoil/atom/user";
 import { useDebounce } from "../../hooks/useDebounce";
 import { Constants } from "../../utils/Constants";
 
 function Dashboard() {
   const navigate = useNavigate();
-  const user = useRecoilValue(userSession);
+  const [user, setUser] = useRecoilState(userSession);
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce(search, 500);
 
@@ -38,6 +38,7 @@ function Dashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem(Constants.AuthToken);
+    setUser(undefined);
     navigate("/signin");
   };
 
