@@ -76,7 +76,7 @@ function Transfer() {
             fontWeight: "bold",
           }}
         >
-          Send Money
+          Transfer Funds
         </h4>
         <div style={{ width: "100%" }}>
           <div
